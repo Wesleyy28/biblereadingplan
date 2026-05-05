@@ -3,157 +3,645 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>约翰福音读经挑战</title>
+    <title>灯塔读经计划</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Noto+Serif+SC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        /* 保持之前的紫色主题样式不变 */
-        :root { --primary-color: #6a1b9a; --light-purple: #f3e5f5; --accent-color: #ab47bc; --white: #ffffff; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--light-purple); color: #333; margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .container { background-color: var(--white); width: 100%; max-width: 500px; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(106, 27, 154, 0.2); }
-        h1 { color: var(--primary-color); text-align: center; margin-bottom: 10px; }
-        .subtitle { text-align: center; color: #666; font-size: 0.9em; margin-bottom: 30px; }
-        .input-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: bold; color: var(--primary-color); }
-        input { width: 100%; padding: 12px; border: 2px solid #e1bee7; border-radius: 8px; font-size: 16px; outline: none; box-sizing: border-box; }
-        input:focus { border-color: var(--primary-color); }
-        button.btn-submit { width: 100%; padding: 15px; background-color: var(--primary-color); color: white; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; transition: 0.3s; }
-        button.btn-submit:hover { background-color: #4a0072; }
-        button:disabled { background-color: #ccc; cursor: not-allowed; }
-        .leaderboard-header { display: flex; justify-content: space-between; margin-bottom: 15px; margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
-        .leaderboard-title { font-size: 1.2em; font-weight: bold; color: var(--primary-color); }
-        .user-card { background: #fafafa; border-left: 5px solid var(--accent-color); padding: 15px; margin-bottom: 10px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .user-card.completed {background: linear-gradient(135deg, #6a1b9a, #8e24aa); color: white; border-left: 5px solid #ffd700; transform: scale(1.02);box-shadow: 0 8px 15px rgba(106, 27, 154, 0.3);}
-        .user-card.completed .progress-container {background-color: rgba(255, 255, 255, 0.3);}
-        .user-card.completed .progress-bar {background-color: #ffd700; }
-        .user-card.completed .chapter-count {color: #e1bee7; }
-        .user-info { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: bold; }
-        .progress-container { width: 100%; background-color: #e0e0e0; border-radius: 10px; height: 10px; overflow: hidden; }
-        .progress-bar { height: 100%; background-color: var(--accent-color); transition: width 0.5s ease-in-out; }
-        .chapter-count { font-size: 0.85em; color: #666; }
-        .loading { text-align: center; color: #999; margin: 20px 0; }
+        :root {
+            --primary: #4a148c;
+            --primary-light: #6a1b9a;
+            --accent: #c9a227;
+            --accent-soft: #e8c547;
+            --bg: #faf6ef;
+            --bg-soft: #f3ecdc;
+            --ink: #2a1b3d;
+            --ink-soft: #5d4e6e;
+            --line: rgba(74, 20, 140, 0.12);
+            --shadow: 0 1px 2px rgba(74, 20, 140, 0.04), 0 8px 24px rgba(74, 20, 140, 0.08);
+            --shadow-lg: 0 4px 12px rgba(74, 20, 140, 0.08), 0 24px 48px rgba(74, 20, 140, 0.12);
+        }
+
+        * { box-sizing: border-box; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        @keyframes lampGlow {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+        @keyframes fillBar {
+            from { width: 0; }
+        }
+
+        body {
+            font-family: 'Noto Serif SC', 'Songti SC', serif;
+            background: var(--bg);
+            background-image:
+                radial-gradient(ellipse at top, rgba(201, 162, 39, 0.08), transparent 60%),
+                radial-gradient(ellipse at bottom, rgba(106, 27, 154, 0.06), transparent 60%);
+            color: var(--ink);
+            margin: 0;
+            padding: 24px 16px 60px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.4;
+            mix-blend-mode: multiply;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.29 0 0 0 0 0.11 0 0 0 0 0.55 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            max-width: 540px;
+            z-index: 1;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+            animation: fadeInUp 0.7s ease-out 0.1s backwards;
+        }
+        .lamp-icon {
+            display: inline-block;
+            font-size: 36px;
+            margin-bottom: 8px;
+            animation: lampGlow 3.5s ease-in-out infinite;
+            filter: drop-shadow(0 0 12px rgba(201, 162, 39, 0.5));
+        }
+        h1 {
+            font-family: 'Cormorant Garamond', 'Noto Serif SC', serif;
+            font-weight: 500;
+            font-size: 36px;
+            letter-spacing: 0.02em;
+            color: var(--primary);
+            margin: 0 0 6px;
+        }
+        .verse {
+            font-style: italic;
+            color: var(--ink-soft);
+            font-size: 14px;
+            font-family: 'Cormorant Garamond', 'Noto Serif SC', serif;
+            margin-top: 4px;
+            letter-spacing: 0.01em;
+        }
+        .verse-divider {
+            width: 40px;
+            height: 1px;
+            background: var(--accent);
+            margin: 12px auto;
+            opacity: 0.6;
+        }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            border: 1px solid var(--line);
+            position: relative;
+            animation: fadeInUp 0.6s ease-out backwards;
+        }
+        .card.delay-1 { animation-delay: 0.2s; }
+        .card.delay-2 { animation-delay: 0.3s; }
+        .card.delay-3 { animation-delay: 0.4s; }
+
+        .book-card {
+            background: linear-gradient(135deg, #4a148c 0%, #6a1b9a 100%);
+            color: white;
+            text-align: center;
+            overflow: hidden;
+        }
+        .book-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(circle at 20% 0%, rgba(255, 215, 0, 0.15), transparent 50%);
+            pointer-events: none;
+        }
+        .book-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.25em;
+            color: var(--accent-soft);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        .book-name {
+            font-family: 'Cormorant Garamond', 'Noto Serif SC', serif;
+            font-size: 32px;
+            font-weight: 500;
+            margin: 4px 0;
+            letter-spacing: 0.02em;
+        }
+        .book-name-zh {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 22px;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        .book-meta {
+            font-size: 13px;
+            opacity: 0.85;
+            font-style: italic;
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        .form-card label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: var(--primary);
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+        .input-group { margin-bottom: 16px; }
+        input {
+            width: 100%;
+            padding: 13px 14px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            background: var(--bg-soft);
+            color: var(--ink);
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+        input:focus {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(74, 20, 140, 0.08);
+        }
+        input::placeholder { color: #a89db8; }
+
+        button.btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: inherit;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        button.btn-submit::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.5s ease;
+        }
+        button.btn-submit:hover::before { transform: translateX(100%); }
+        button.btn-submit:hover {
+            background: var(--primary-light);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(74, 20, 140, 0.25);
+        }
+        button.btn-submit:active { transform: translateY(0); }
+        button:disabled {
+            background: #b5a8c4 !important;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .section-title {
+            font-family: 'Cormorant Garamond', 'Noto Serif SC', serif;
+            font-size: 22px;
+            font-weight: 500;
+            color: var(--primary);
+            margin: 0 0 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--line);
+        }
+
+        .user-card {
+            background: var(--bg-soft);
+            border-left: 3px solid var(--primary-light);
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeInUp 0.4s ease-out backwards;
+        }
+        .user-card:hover {
+            transform: translateX(2px);
+            box-shadow: 0 2px 8px rgba(74, 20, 140, 0.08);
+        }
+        .user-card.completed {
+            background: linear-gradient(135deg, #4a148c, #6a1b9a);
+            color: white;
+            border-left: 3px solid var(--accent);
+            position: relative;
+            overflow: hidden;
+        }
+        .user-card.completed::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(201, 162, 39, 0.15), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 4s infinite linear;
+            pointer-events: none;
+        }
+        .user-card.completed .progress-container { background: rgba(255, 255, 255, 0.2); }
+        .user-card.completed .progress-bar { background: var(--accent-soft); }
+        .user-card.completed .chapter-count { color: var(--accent-soft); }
+
+        .rank-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        .rank-num {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px;
+            font-weight: 500;
+            color: var(--accent);
+            min-width: 24px;
+            text-align: center;
+            font-style: italic;
+        }
+        .completed .rank-num { color: var(--accent-soft); }
+        .user-name {
+            flex: 1;
+            font-weight: 500;
+            font-size: 16px;
+        }
+        .chapter-count {
+            font-size: 13px;
+            color: var(--ink-soft);
+            font-family: 'Cormorant Garamond', 'Noto Serif SC', serif;
+            font-style: italic;
+        }
+        .progress-container {
+            background: rgba(74, 20, 140, 0.1);
+            border-radius: 100px;
+            height: 6px;
+            overflow: hidden;
+            margin-left: 36px;
+            width: calc(100% - 36px);
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-light), var(--accent));
+            border-radius: 100px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: fillBar 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .chapter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
+            gap: 8px;
+        }
+        .chapter-link {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-soft);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--primary);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .chapter-link:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74, 20, 140, 0.25);
+            border-color: var(--primary);
+        }
+        .chapter-link::after {
+            content: '';
+            position: absolute;
+            bottom: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 1px;
+            background: currentColor;
+            transition: width 0.2s ease;
+        }
+        .chapter-link:hover::after { width: 16px; }
+
+        .chapter-source {
+            font-size: 12px;
+            color: var(--ink-soft);
+            text-align: center;
+            margin-top: 14px;
+            font-style: italic;
+            font-family: 'Cormorant Garamond', 'Noto Serif SC', serif;
+        }
+
+        .loading {
+            text-align: center;
+            color: var(--ink-soft);
+            padding: 24px;
+            font-style: italic;
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--ink);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 100px;
+            font-size: 14px;
+            box-shadow: var(--shadow-lg);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 1000;
+            font-weight: 500;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.success { background: linear-gradient(135deg, #4a148c, #6a1b9a); }
+        .toast.error { background: #c62828; }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 30px; }
+            .book-name { font-size: 26px; }
+            .card { padding: 20px; }
+            .chapter-grid { grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)); gap: 6px; }
+            .chapter-link { font-size: 16px; }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>📖 灯塔读经计划</h1>
-    <div class="subtitle">诗篇119:105 你的话是我脚前的灯，路上的光。</div>
-
-    <div class="input-group">
-        <label for="username">名字 (记得用一样的) </label>
-        <input type="text" id="username" placeholder="例如：Sam">
+    <div class="header">
+        <div class="lamp-icon">🪔</div>
+        <h1>灯塔读经计划</h1>
+        <div class="verse-divider"></div>
+        <div class="verse">"你的话是我脚前的灯，路上的光" — 诗篇 119:105</div>
     </div>
 
-    <div class="input-group">
-        <label for="chapter">已完成章数 (1-21)</label>
-        <input type="number" id="chapter" min="1" max="21" placeholder="你读到第几章了？">
+    <!-- Active Book Card -->
+    <div class="card book-card delay-1">
+        <div class="book-label">本期共读 · This Cycle</div>
+        <div class="book-name" id="book-name-en">John</div>
+        <div class="book-name-zh" id="book-name-zh">约翰福音</div>
+        <div class="book-meta" id="book-meta">21 chapters · 新标点和合本</div>
     </div>
 
-    <button id="submitBtn" class="btn-submit">更新进度</button>
-
-    <div class="leaderboard-header">
-        <div class="leaderboard-title">🏆 Leaderboard</div>
+    <!-- Form -->
+    <div class="card form-card delay-2">
+        <div class="input-group">
+            <label for="username">名字 <span style="opacity:0.6;font-weight:400">（请保持一致）</span></label>
+            <input type="text" id="username" placeholder="例如：Sam">
+        </div>
+        <div class="input-group">
+            <label for="chapter">已完成章数 <span id="chapter-range" style="opacity:0.6;font-weight:400">(1-21)</span></label>
+            <input type="number" id="chapter" min="1" max="21" placeholder="你读到第几章了？">
+        </div>
+        <button id="submitBtn" class="btn-submit">更新进度</button>
     </div>
 
-    <div id="leaderboard-list">
-        <div class="loading">正在加载数据...</div>
+    <!-- Leaderboard -->
+    <div class="card delay-3">
+        <h2 class="section-title">🏆 排行榜</h2>
+        <div id="leaderboard-list">
+            <div class="loading">正在加载数据...</div>
+        </div>
+    </div>
+
+    <!-- Chapter Links -->
+    <div class="card delay-3">
+        <h2 class="section-title">📖 阅读章节</h2>
+        <div class="chapter-grid" id="chapter-grid"></div>
+        <div class="chapter-source">点击章节，在 YouVersion 中阅读 · 中文和合本</div>
     </div>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script type="module">
-    // 1. 引入必要的 Firebase 库
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, where, getDocs, updateDoc, onSnapshot, serverTimestamp } 
+    import { getFirestore, collection, addDoc, query, where, getDocs, updateDoc, onSnapshot, serverTimestamp }
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // 🔴 2. 你的配置填在这里 (从 Firebase 控制台复制并替换下面这个对象)
+    // ============================================================
+    // 📌 ACTIVE BOOK CONFIG — change this for each new cycle
+    // ============================================================
+    // Just change `activeBookKey` to switch the cycle.
+    // Available keys are below in NT_BOOKS (matches YouVersion's OSIS codes).
+    // ============================================================
+    const activeBookKey = "JHN"; // ← change me each cycle (e.g. "MAT", "ROM", "REV")
+
+    const NT_BOOKS = {
+        MAT:  { en: "Matthew",          zh: "马太福音",       chapters: 28 },
+        MRK:  { en: "Mark",             zh: "马可福音",       chapters: 16 },
+        LUK:  { en: "Luke",             zh: "路加福音",       chapters: 24 },
+        JHN:  { en: "John",             zh: "约翰福音",       chapters: 21 },
+        ACT:  { en: "Acts",             zh: "使徒行传",       chapters: 28 },
+        ROM:  { en: "Romans",           zh: "罗马书",         chapters: 16 },
+        "1CO":{ en: "1 Corinthians",    zh: "哥林多前书",     chapters: 16 },
+        "2CO":{ en: "2 Corinthians",    zh: "哥林多后书",     chapters: 13 },
+        GAL:  { en: "Galatians",        zh: "加拉太书",       chapters: 6  },
+        EPH:  { en: "Ephesians",        zh: "以弗所书",       chapters: 6  },
+        PHP:  { en: "Philippians",      zh: "腓立比书",       chapters: 4  },
+        COL:  { en: "Colossians",       zh: "歌罗西书",       chapters: 4  },
+        "1TH":{ en: "1 Thessalonians",  zh: "帖撒罗尼迦前书", chapters: 5  },
+        "2TH":{ en: "2 Thessalonians",  zh: "帖撒罗尼迦后书", chapters: 3  },
+        "1TI":{ en: "1 Timothy",        zh: "提摩太前书",     chapters: 6  },
+        "2TI":{ en: "2 Timothy",        zh: "提摩太后书",     chapters: 4  },
+        TIT:  { en: "Titus",            zh: "提多书",         chapters: 3  },
+        PHM:  { en: "Philemon",         zh: "腓利门书",       chapters: 1  },
+        HEB:  { en: "Hebrews",          zh: "希伯来书",       chapters: 13 },
+        JAS:  { en: "James",            zh: "雅各书",         chapters: 5  },
+        "1PE":{ en: "1 Peter",          zh: "彼得前书",       chapters: 5  },
+        "2PE":{ en: "2 Peter",          zh: "彼得后书",       chapters: 3  },
+        "1JN":{ en: "1 John",           zh: "约翰一书",       chapters: 5  },
+        "2JN":{ en: "2 John",           zh: "约翰二书",       chapters: 1  },
+        "3JN":{ en: "3 John",           zh: "约翰三书",       chapters: 1  },
+        JUD:  { en: "Jude",             zh: "犹大书",         chapters: 1  },
+        REV:  { en: "Revelation",       zh: "启示录",         chapters: 22 }
+    };
+
+    // YouVersion bible.com URL — version 46 = CUNPSS (新标点和合本简体)
+    // Format: https://www.bible.com/bible/46/JHN.3.CUNPSS
+    const YOUVERSION_VERSION_ID = 46;
+    const YOUVERSION_VERSION_CODE = "CUNPSS";
+    function chapterUrl(bookKey, chapter) {
+        return `https://www.bible.com/bible/${YOUVERSION_VERSION_ID}/${bookKey}.${chapter}.${YOUVERSION_VERSION_CODE}`;
+    }
+
+    const activeBook = NT_BOOKS[activeBookKey];
+    if (!activeBook) console.error(`Unknown book key: ${activeBookKey}`);
+
+    // Each book gets its own Firestore collection so cycles don't bleed into each other
+    const COLLECTION_NAME = `bible_progress_${activeBookKey}`;
+
+    // ============================================================
+    // 🔴 Firebase config
+    // ============================================================
     const firebaseConfig = {
-            apiKey: "FIREBASE_API_KEY",
-            authDomain: "FIREBASE_AUTH_DOMAIN",
-            projectId: "FIREBASE_PROJECT_ID",
-            storageBucket: "FIREBASE_STORAGE_BUCKET",
-            messagingSenderId: "FIREBASE_MESSAGING_SENDER_ID",
-            appId: "FIREBASE_APP_ID",
-            measurementId: "FIREBASE_MEASUREMENT_ID"
-        };
-    // 初始化 Firebase
+        apiKey: "FIREBASE_API_KEY",
+        authDomain: "FIREBASE_AUTH_DOMAIN",
+        projectId: "FIREBASE_PROJECT_ID",
+        storageBucket: "FIREBASE_STORAGE_BUCKET",
+        messagingSenderId: "FIREBASE_MESSAGING_SENDER_ID",
+        appId: "FIREBASE_APP_ID",
+        measurementId: "FIREBASE_MEASUREMENT_ID"
+    };
+
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const COLLECTION_NAME = "bible_progress";
 
-    // 监听提交按钮
+    // ============================================================
+    // Render header / form for the active book
+    // ============================================================
+    document.getElementById('book-name-en').textContent = activeBook.en;
+    document.getElementById('book-name-zh').textContent = activeBook.zh;
+    document.getElementById('book-meta').textContent = `${activeBook.chapters} chapters · 新标点和合本`;
+    document.getElementById('chapter-range').textContent = `(1-${activeBook.chapters})`;
+    document.getElementById('chapter').max = activeBook.chapters;
+    document.title = `${activeBook.zh} · 灯塔读经计划`;
+
+    // ============================================================
+    // Build the chapter link grid
+    // ============================================================
+    const grid = document.getElementById('chapter-grid');
+    for (let i = 1; i <= activeBook.chapters; i++) {
+        const a = document.createElement('a');
+        a.href = chapterUrl(activeBookKey, i);
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.className = 'chapter-link';
+        a.textContent = i;
+        a.style.animation = 'fadeInUp 0.4s ease-out backwards';
+        a.style.animationDelay = `${0.4 + i * 0.02}s`;
+        grid.appendChild(a);
+    }
+
+    // ============================================================
+    // Toast helper (replaces ugly alerts)
+    // ============================================================
+    const toastEl = document.getElementById('toast');
+    let toastTimer;
+    function toast(msg, type = 'success') {
+        clearTimeout(toastTimer);
+        toastEl.textContent = msg;
+        toastEl.className = `toast ${type} show`;
+        toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2400);
+    }
+
+    // ============================================================
+    // Submit handler
+    // ============================================================
     const submitBtn = document.getElementById('submitBtn');
     submitBtn.addEventListener('click', updateProgress);
-
-    // 3. 实时监听数据库变化 (一旦有人更新，这里自动触发)
-    const q = query(collection(db, COLLECTION_NAME));
-    onSnapshot(q, (snapshot) => {
-        const users = [];
-        snapshot.forEach((doc) => {
-            users.push({ id: doc.id, ...doc.data() });
-        });
-        renderLeaderboard(users);
+    document.getElementById('chapter').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') updateProgress();
     });
 
-    // 更新进度的逻辑
     async function updateProgress() {
         const nameInput = document.getElementById('username');
         const chapterInput = document.getElementById('chapter');
         const name = nameInput.value.trim();
         const chapters = parseInt(chapterInput.value);
+        const max = activeBook.chapters;
 
-        if (!name) return alert("请输入名字");
-        if (isNaN(chapters) || chapters < 1 || chapters > 21) return alert("请输入 1-21 之间的数字");
+        if (!name) return toast("请输入名字", 'error');
+        if (isNaN(chapters) || chapters < 1 || chapters > max) {
+            return toast(`请输入 1-${max} 之间的数字`, 'error');
+        }
 
         submitBtn.disabled = true;
         submitBtn.innerText = "更新中...";
 
         try {
-            // 检查该名字是否已存在
             const userQuery = query(collection(db, COLLECTION_NAME), where("name", "==", name));
             const querySnapshot = await getDocs(userQuery);
 
             if (!querySnapshot.empty) {
-                // 如果存在，更新第一个匹配的文档
                 const userDoc = querySnapshot.docs[0];
-                const userRef = userDoc.ref;
-                const existingData = userDoc.data();
-
-                // 只在章数实际有变化时更新 lastUpdatedAt
-                // 这样平手时按"谁先到达这个章数"排序
-                const updatePayload = { chapters: chapters };
-                if (existingData.chapters !== chapters) {
+                const existing = userDoc.data();
+                const updatePayload = { chapters };
+                if (existing.chapters !== chapters) {
                     updatePayload.lastUpdatedAt = serverTimestamp();
                 }
-                // 如果旧数据没有 createdAt（迁移老用户），补上
-                if (!existingData.createdAt) {
+                if (!existing.createdAt) {
                     updatePayload.createdAt = serverTimestamp();
                 }
-                await updateDoc(userRef, updatePayload);
+                await updateDoc(userDoc.ref, updatePayload);
             } else {
-                // 如果不存在，创建新文档，同时记录创建时间和最后更新时间
                 await addDoc(collection(db, COLLECTION_NAME), {
-                    name: name,
-                    chapters: chapters,
+                    name,
+                    chapters,
                     createdAt: serverTimestamp(),
                     lastUpdatedAt: serverTimestamp()
                 });
             }
-            
-            // 清空章数，保留名字方便下次输入
+
             chapterInput.value = '';
-            alert("更新成功！");
+            toast(chapters >= max ? "🎉 恭喜读完！愿主祝福你" : "更新成功！", 'success');
 
         } catch (e) {
             console.error("Error: ", e);
-            alert("更新失败，请检查网络或联系管理员。");
+            toast("更新失败，请检查网络", 'error');
         } finally {
             submitBtn.disabled = false;
             submitBtn.innerText = "更新进度";
         }
     }
 
-    // 把 Firestore Timestamp 转成毫秒数字，方便排序
-    // 没有时间戳的（老数据）当作很大的数 -> 排在后面
+    // ============================================================
+    // Live leaderboard
+    // ============================================================
+    onSnapshot(query(collection(db, COLLECTION_NAME)), (snapshot) => {
+        const users = [];
+        snapshot.forEach((doc) => users.push({ id: doc.id, ...doc.data() }));
+        renderLeaderboard(users);
+    });
+
     function toMillis(ts) {
         if (!ts) return Number.MAX_SAFE_INTEGER;
         if (typeof ts.toMillis === 'function') return ts.toMillis();
@@ -161,62 +649,56 @@
         return Number.MAX_SAFE_INTEGER;
     }
 
-    // 渲染排行榜 UI
     function renderLeaderboard(users) {
-    const listContainer = document.getElementById('leaderboard-list');
-    listContainer.innerHTML = '';
+        const listContainer = document.getElementById('leaderboard-list');
+        listContainer.innerHTML = '';
 
-    if (users.length === 0) {
-        listContainer.innerHTML = '<div class="loading">还没有人打卡，快来做第一个！</div>';
-        return;
+        if (users.length === 0) {
+            listContainer.innerHTML = '<div class="loading">还没有人打卡，做第一个吧 ✨</div>';
+            return;
+        }
+
+        users.sort((a, b) => {
+            if (b.chapters !== a.chapters) return b.chapters - a.chapters;
+            const aLast = toMillis(a.lastUpdatedAt);
+            const bLast = toMillis(b.lastUpdatedAt);
+            if (aLast !== bLast) return aLast - bLast;
+            return toMillis(a.createdAt) - toMillis(b.createdAt);
+        });
+
+        const max = activeBook.chapters;
+
+        users.forEach((user, idx) => {
+            const percentage = Math.min((user.chapters / max) * 100, 100);
+            const isFinished = user.chapters >= max;
+            const cardClass = isFinished ? 'user-card completed' : 'user-card';
+            const safeName = escapeHtml(user.name);
+            const nameDisplay = isFinished ? `${safeName} 🏆` : safeName;
+            const statusText = isFinished ? '已读完 · Finished' : `${user.chapters} / ${max}`;
+
+            const card = document.createElement('div');
+            card.className = cardClass;
+            card.style.animationDelay = `${idx * 0.05}s`;
+            card.innerHTML = `
+                <div class="rank-row">
+                    <span class="rank-num">${idx + 1}</span>
+                    <span class="user-name">${nameDisplay}</span>
+                    <span class="chapter-count">${statusText}</span>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" style="width: ${percentage}%"></div>
+                </div>
+            `;
+            listContainer.appendChild(card);
+        });
     }
 
-    // 排序：
-    // 1. 章数多的在上面
-    // 2. 章数相同时，先到达这个章数的（lastUpdatedAt 较早的）在上面
-    // 3. 如果还相同，先注册的（createdAt 较早的）在上面
-    users.sort((a, b) => {
-        if (b.chapters !== a.chapters) {
-            return b.chapters - a.chapters;
-        }
-        const aLast = toMillis(a.lastUpdatedAt);
-        const bLast = toMillis(b.lastUpdatedAt);
-        if (aLast !== bLast) {
-            return aLast - bLast; // 早的在前
-        }
-        return toMillis(a.createdAt) - toMillis(b.createdAt);
-    });
-
-    users.forEach(user => {
-        // 计算进度
-        const percentage = Math.min((user.chapters / 21) * 100, 100);
-        
-        // 检查是否完成 (大于等于21章)
-        const isFinished = user.chapters >= 21;
-        
-        // 如果完成了，加上 'completed' 这个 class
-        // 如果完成了，名字后面加个奖杯 emoji 🏆
-        const cardClass = isFinished ? 'user-card completed' : 'user-card';
-        const nameDisplay = isFinished ? `${user.name} 🏆` : user.name;
-        const statusText = isFinished ? '🎉 已读完！' : `${user.chapters} / 21 章`;
-
-        const card = document.createElement('div');
-        card.className = cardClass; // 应用样式
-        
-        card.innerHTML = `
-            <div class="user-info">
-                <span>${nameDisplay}</span>
-                <span class="chapter-count">${statusText}</span>
-            </div>
-            <div class="progress-container">
-                <div class="progress-bar" style="width: ${percentage}%"></div>
-            </div>
-        `;
-        listContainer.appendChild(card);
-    });
-}
+    function escapeHtml(str) {
+        return String(str).replace(/[&<>"']/g, c => ({
+            '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+        }[c]));
+    }
 </script>
 
 </body>
-
 </html>
